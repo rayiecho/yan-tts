@@ -1,8 +1,15 @@
 {
   "build": {
-    "builder": "NIXPACKS"
+    "builder": "NIXPACKS",
+    "nixpacksPlan": {
+      "phases": {
+        "setup": {
+          "nixPkgs": ["espeak-ng", "python311"]
+        }
+      }
+    }
   },
   "deploy": {
-    "startCommand": "apt-get install -y espeak espeak-ng && gunicorn app2:app --bind 0.0.0.0:$PORT"
+    "startCommand": "gunicorn app2:app --bind 0.0.0.0:$PORT"
   }
 }

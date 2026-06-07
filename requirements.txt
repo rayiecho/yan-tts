@@ -1,5 +1,4 @@
 flask
 flask-cors
 pyttsx3
-espeak-ng
 gunicorn
