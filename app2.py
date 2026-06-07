@@ -15,27 +15,21 @@ def text_to_speech():
         speed = data.get('speed', 150)
         if not text:
             return jsonify({'error': 'No text provided'}), 400
-
-        # Use espeak-ng directly - no audio hardware needed
         tmp = tempfile.NamedTemporaryFile(suffix='.wav', delete=False)
         tmp.close()
-
         subprocess.run([
-            'espeak-ng',
-            '-s', str(speed),
-            '-w', tmp.name,
-            text
-        ], check=True, capture_output=True)
-
-        return send_file(tmp.name, mimetype='audio/wav', as_attachment=False)
-
+            'espeak-ng', '-s', str(speed),
+            '--stdout'
+        ], input=text.encode(), stdout=open(tmp.name, 'wb'),
+           check=True, stderr=subprocess.DEVNULL)
+        return send_file(tmp.name, mimetype='audio/wav')
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/health', methods=['GET'])
+@app.route('/health')
 def health():
-    return jsonify({'status': 'YAN TTS Server running'})
+    return jsonify({'status': 'ok'})
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, debug=False)
