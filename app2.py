@@ -1,6 +1,6 @@
 from flask import Flask, request, send_file, jsonify
 from flask_cors import CORS
-import pyttsx3
+import subprocess
 import tempfile
 import os
 
@@ -15,14 +15,20 @@ def text_to_speech():
         speed = data.get('speed', 150)
         if not text:
             return jsonify({'error': 'No text provided'}), 400
-        engine = pyttsx3.init()
-        engine.setProperty('rate', int(speed))
-        engine.setProperty('volume', 1.0)
-        tmp = tempfile.NamedTemporaryFile(suffix='.mp3', delete=False)
+
+        # Use espeak-ng directly - no audio hardware needed
+        tmp = tempfile.NamedTemporaryFile(suffix='.wav', delete=False)
         tmp.close()
-        engine.save_to_file(text, tmp.name)
-        engine.runAndWait()
-        return send_file(tmp.name, mimetype='audio/mp3', as_attachment=False)
+
+        subprocess.run([
+            'espeak-ng',
+            '-s', str(speed),
+            '-w', tmp.name,
+            text
+        ], check=True, capture_output=True)
+
+        return send_file(tmp.name, mimetype='audio/wav', as_attachment=False)
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
