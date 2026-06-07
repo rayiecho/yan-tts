@@ -1,0 +1,8 @@
+{
+  "build": {
+    "builder": "NIXPACKS"
+  },
+  "deploy": {
+    "startCommand": "apt-get install -y espeak espeak-ng && gunicorn app2:app --bind 0.0.0.0:$PORT"
+  }
+}
